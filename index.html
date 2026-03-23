@@ -714,9 +714,6 @@ async function getAnalysis(query, chunks, userEmail) {
     body: JSON.stringify({ query, chunks, user_email: userEmail })
   });
   const data = await res.json();
-  if (data.debug_status !== undefined) {
-    throw new Error(`Anthropic status ${data.debug_status}: ${data.debug_raw}`);
-  }
   if (!res.ok) throw new Error(data.error || 'Analysis failed');
   return data.analysis;
 }
