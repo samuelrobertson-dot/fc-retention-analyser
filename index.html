@@ -657,7 +657,7 @@ async function searchTranscripts(embedding) {
   const res = await fetch(`${WORKER_URL}/search`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ query_embedding: embedding, match_count: 60 })
+    body: JSON.stringify({ query_embedding: embedding, match_count: 20 })
   });
   const data = await res.json();
   if (!Array.isArray(data)) throw new Error(JSON.stringify(data));
