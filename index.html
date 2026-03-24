@@ -642,14 +642,6 @@ function setQuery(el) {
   document.getElementById('queryInput').focus();
 }
 
-function resetQuery() {
-  document.getElementById('results').classList.remove('visible');
-  document.getElementById('errorMsg').classList.remove('visible');
-  document.getElementById('queryInput').value = '';
-  document.getElementById('analyseBtn').disabled = false;
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
 async function getEmbedding(text) {
   const res = await fetch(`${WORKER_URL}/embed`, {
     method: 'POST',
@@ -723,7 +715,7 @@ async function analyse() {
     });
 
     results.classList.add('visible');
-    document.getElementById('analysisBody').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
 
   } catch (err) {
     loading.classList.remove('visible');
