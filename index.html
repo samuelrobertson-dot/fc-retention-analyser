@@ -662,10 +662,6 @@
       </div>
 
       <div class="results-state" id="resultsState">
-        <div class="print-header">
-          <div class="print-header-brand">FOODIE COACHES — RETENTION ANALYSER</div>
-          <div class="print-header-date" id="printDate"></div>
-        </div>
         <div class="result-header">
           <div>
             <div class="result-query-tag">Analysis</div>
@@ -854,12 +850,6 @@ async function copyAnalysis() {
   setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
 }
 
-// --- EXPORT PDF ---
-function exportPDF() {
-  document.getElementById('printDate').textContent = new Date().toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' });
-  window.print();
-}
-
 // --- UI ---
 function setQuery(el) {
   document.getElementById('queryInput').value = el.textContent.trim();
@@ -894,20 +884,37 @@ async function getEmbedding(text, retries = 3) {
 
 async function searchTranscripts(embedding, dateFilter) {
   const useFiltered = dateFilter.from || dateFilter.to;
-  const endpoint = useFiltered ? '/search-filtered' : '/search';
-  const body = {
-    query_embedding: embedding,
-    match_count: 20,
-    ...(useFiltered && { date_from: dateFilter.from, date_to: dateFilter.to })
-  };
 
-  const res = await fetch(`${WORKER_URL}${endpoint}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
-  });
-  const data = await res.json();
-  if (!Array.isArray(data)) throw new Error(JSON.stringify(data));
+  let res, data;
+
+  if (useFiltered) {
+    // Filtered endpoint — date params only, lower match count to avoid timeouts
+    res = await fetch(WORKER_URL + '/search-filtered', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        query_embedding: embedding,
+        match_count: 20,
+        date_from: dateFilter.from || null,
+        date_to: dateFilter.to || null
+      })
+    });
+  } else {
+    // Standard endpoint
+    res = await fetch(WORKER_URL + '/search', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        query_embedding: embedding,
+        match_count: 20
+      })
+    });
+  }
+
+  data = await res.json();
+  if (!Array.isArray(data)) {
+    throw new Error('Search failed: ' + (data?.message || data?.error || JSON.stringify(data).slice(0, 200)));
+  }
   return data;
 }
 
