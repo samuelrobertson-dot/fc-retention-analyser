@@ -470,8 +470,9 @@
     border-bottom: 1px solid var(--border);
   }
 
-  .copy-btn {
-    flex-shrink: 0;
+  .result-btns { display: flex; gap: 8px; flex-shrink: 0; }
+
+  .copy-btn, .pdf-btn {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 3px;
@@ -485,8 +486,29 @@
     text-transform: uppercase;
     white-space: nowrap;
   }
-  .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .copy-btn:hover, .pdf-btn:hover { border-color: var(--accent); color: var(--accent); }
   .copy-btn.copied { border-color: #5c9e6e; color: #5c9e6e; }
+
+  .print-header { display: none; }
+
+  @media print {
+    body { background: white !important; color: #1a1a1a !important; font-size: 11pt; line-height: 1.6; }
+    body::before { display: none !important; }
+    .auth-screen, .topbar, .panel-left, .empty-state, .loading-state,
+    .result-btns, .sources-label, .source-pills { display: none !important; }
+    .app { display: block !important; }
+    .workspace { display: block !important; height: auto !important; }
+    .panel-right { padding: 0 !important; overflow: visible !important; }
+    .results-state { display: block !important; }
+    .print-header { display: flex !important; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 12px; border-bottom: 1px solid #ddd; }
+    .print-header-brand { font-size: 14pt; font-weight: 700; color: #1a1a1a; }
+    .print-header-date { font-size: 8pt; color: #888; }
+    .result-header { display: block !important; border-bottom: 2px solid #1a1a1a; padding-bottom: 12px; margin-bottom: 4px; }
+    .result-query-tag { font-size: 8pt; color: #888 !important; display: block; margin-bottom: 4px; }
+    .result-query-text { font-size: 18pt; font-weight: 700; color: #1a1a1a !important; }
+    .result-meta { font-size: 8pt; color: #888 !important; border-bottom: 1px solid #ddd; padding-bottom: 12px; margin-bottom: 20px; }
+    .analysis-body { font-size: 10.5pt; line-height: 1.8; color: #2a2a2a !important; white-space: pre-wrap; margin-bottom: 0; }
+  }
 
   .analysis-body {
     font-size: 14px;
@@ -640,12 +662,19 @@
       </div>
 
       <div class="results-state" id="resultsState">
+        <div class="print-header">
+          <div class="print-header-brand">FOODIE COACHES — RETENTION ANALYSER</div>
+          <div class="print-header-date" id="printDate"></div>
+        </div>
         <div class="result-header">
           <div>
             <div class="result-query-tag">Analysis</div>
             <div class="result-query-text" id="resultQuery"></div>
           </div>
-          <button class="copy-btn" id="copyBtn" onclick="copyAnalysis()">Copy</button>
+          <div class="result-btns">
+            <button class="copy-btn" id="copyBtn" onclick="copyAnalysis()">Copy</button>
+            <button class="pdf-btn" onclick="exportPDF()">Export PDF</button>
+          </div>
         </div>
         <div class="result-meta" id="resultMeta"></div>
         <div class="analysis-body" id="analysisBody"></div>
@@ -823,6 +852,12 @@ async function copyAnalysis() {
   btn.textContent = 'Copied!';
   btn.classList.add('copied');
   setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+}
+
+// --- EXPORT PDF ---
+function exportPDF() {
+  document.getElementById('printDate').textContent = new Date().toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' });
+  window.print();
 }
 
 // --- UI ---
