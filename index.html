@@ -39,7 +39,6 @@
     opacity: 0.4;
   }
 
-  /* ── AUTH ── */
   .auth-screen {
     position: fixed;
     inset: 0;
@@ -113,7 +112,6 @@
   }
   .auth-error.visible { display: block; }
 
-  /* ── LAYOUT ── */
   .app { display: none; }
   .app.visible { display: flex; flex-direction: column; min-height: 100vh; position: relative; z-index: 1; }
 
@@ -157,7 +155,6 @@
   }
   .signout-btn:hover { color: var(--accent); }
 
-  /* ── TWO-COLUMN LAYOUT ── */
   .workspace {
     display: flex;
     flex: 1;
@@ -222,7 +219,76 @@
   }
   .pill:hover { border-color: var(--accent); color: var(--accent); }
 
-  /* Query history */
+  /* Date filter */
+  .date-filter {
+    margin-bottom: 24px;
+  }
+
+  .date-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .date-field label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .date-input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 8px 10px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    outline: none;
+    transition: border-color 0.2s;
+    color-scheme: dark;
+  }
+  .date-input:focus { border-color: var(--accent); }
+
+  .date-presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .date-preset {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 5px 10px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .date-preset:hover { border-color: var(--accent); color: var(--accent); }
+  .date-preset.active { border-color: var(--accent); color: var(--accent); background: rgba(232,197,71,0.05); }
+
+  .date-clear {
+    background: none;
+    border: none;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    cursor: pointer;
+    padding: 0;
+    transition: color 0.2s;
+  }
+  .date-clear:hover { color: var(--accent); }
+
+  /* History */
   .history-section {
     margin-bottom: 24px;
     display: none;
@@ -263,13 +329,12 @@
     font-size: 10px;
   }
 
-  /* Query input */
   .query-wrap { flex: 1; display: flex; flex-direction: column; }
 
   .query-input {
     width: 100%;
     flex: 1;
-    min-height: 120px;
+    min-height: 100px;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 4px;
@@ -307,7 +372,6 @@
   .analyse-btn:hover { background: var(--accent-dim); }
   .analyse-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-  /* Right panel */
   .panel-right {
     flex: 1;
     overflow-y: auto;
@@ -406,7 +470,6 @@
     border-bottom: 1px solid var(--border);
   }
 
-  /* Copy button */
   .copy-btn {
     flex-shrink: 0;
     background: var(--surface);
@@ -479,7 +542,6 @@
 </head>
 <body>
 
-<!-- Auth -->
 <div class="auth-screen" id="authScreen">
   <div class="auth-box">
     <span class="auth-tag">Foodie Coaches // Leadership</span>
@@ -498,7 +560,6 @@
   </div>
 </div>
 
-<!-- App -->
 <div class="app" id="app">
 
   <div class="topbar">
@@ -511,7 +572,6 @@
 
   <div class="workspace">
 
-    <!-- Left: Query panel -->
     <div class="panel-left">
 
       <div class="panel-title">Ask the<br><span>Data</span></div>
@@ -525,6 +585,27 @@
         <div class="pill" onclick="setQuery(this)">How are coaches handling clients who want to exit?</div>
         <div class="pill" onclick="setQuery(this)">Which clients seem most at risk of leaving?</div>
         <div class="pill" onclick="setQuery(this)">What objections do members raise about the program?</div>
+      </div>
+
+      <!-- Date filter -->
+      <div class="date-filter">
+        <span class="section-label">Date range <button class="date-clear" onclick="clearDates()" id="dateClearBtn" style="display:none">— clear</button></span>
+        <div class="date-row">
+          <div class="date-field">
+            <label>From</label>
+            <input type="date" class="date-input" id="dateFrom" onchange="onDateChange()">
+          </div>
+          <div class="date-field">
+            <label>To</label>
+            <input type="date" class="date-input" id="dateTo" onchange="onDateChange()">
+          </div>
+        </div>
+        <div class="date-presets">
+          <div class="date-preset" onclick="setPreset('3m')" id="preset-3m">Last 3 months</div>
+          <div class="date-preset" onclick="setPreset('6m')" id="preset-6m">Last 6 months</div>
+          <div class="date-preset" onclick="setPreset('12m')" id="preset-12m">Last 12 months</div>
+          <div class="date-preset" onclick="setPreset('2025')" id="preset-2025">2025</div>
+        </div>
       </div>
 
       <div class="history-section" id="historySection">
@@ -545,7 +626,6 @@
 
     </div>
 
-    <!-- Right: Results panel -->
     <div class="panel-right" id="panelRight">
 
       <div class="empty-state" id="emptyState">
@@ -642,11 +722,62 @@ window.addEventListener('load', async () => {
   });
 });
 
+// --- DATE FILTER ---
+function setPreset(preset) {
+  const today = new Date();
+  let from;
+
+  document.querySelectorAll('.date-preset').forEach(el => el.classList.remove('active'));
+  document.getElementById(`preset-${preset}`)?.classList.add('active');
+
+  if (preset === '3m') {
+    from = new Date(today);
+    from.setMonth(from.getMonth() - 3);
+    document.getElementById('dateFrom').value = from.toISOString().split('T')[0];
+    document.getElementById('dateTo').value = today.toISOString().split('T')[0];
+  } else if (preset === '6m') {
+    from = new Date(today);
+    from.setMonth(from.getMonth() - 6);
+    document.getElementById('dateFrom').value = from.toISOString().split('T')[0];
+    document.getElementById('dateTo').value = today.toISOString().split('T')[0];
+  } else if (preset === '12m') {
+    from = new Date(today);
+    from.setFullYear(from.getFullYear() - 1);
+    document.getElementById('dateFrom').value = from.toISOString().split('T')[0];
+    document.getElementById('dateTo').value = today.toISOString().split('T')[0];
+  } else if (preset === '2025') {
+    document.getElementById('dateFrom').value = '2025-01-01';
+    document.getElementById('dateTo').value = '2025-12-31';
+  }
+
+  document.getElementById('dateClearBtn').style.display = 'inline';
+}
+
+function onDateChange() {
+  document.querySelectorAll('.date-preset').forEach(el => el.classList.remove('active'));
+  const from = document.getElementById('dateFrom').value;
+  const to = document.getElementById('dateTo').value;
+  document.getElementById('dateClearBtn').style.display = (from || to) ? 'inline' : 'none';
+}
+
+function clearDates() {
+  document.getElementById('dateFrom').value = '';
+  document.getElementById('dateTo').value = '';
+  document.querySelectorAll('.date-preset').forEach(el => el.classList.remove('active'));
+  document.getElementById('dateClearBtn').style.display = 'none';
+}
+
+function getDateFilter() {
+  return {
+    from: document.getElementById('dateFrom').value || null,
+    to: document.getElementById('dateTo').value || null
+  };
+}
+
 // --- QUERY HISTORY ---
 function getHistory() {
-  try {
-    return JSON.parse(sessionStorage.getItem('fc_query_history') || '[]');
-  } catch { return []; }
+  try { return JSON.parse(sessionStorage.getItem('fc_query_history') || '[]'); }
+  catch { return []; }
 }
 
 function addToHistory(query) {
@@ -660,62 +791,41 @@ function renderHistory() {
   const history = getHistory();
   const section = document.getElementById('historySection');
   const list = document.getElementById('historyList');
-
-  if (!history.length) {
-    section.classList.remove('visible');
-    return;
-  }
-
+  if (!history.length) { section.classList.remove('visible'); return; }
   section.classList.add('visible');
   list.innerHTML = '';
   history.forEach(q => {
     const el = document.createElement('div');
     el.className = 'history-pill';
     el.innerHTML = `<span class="history-pill-text">${q}</span><span class="history-pill-arrow">↑</span>`;
-    el.onclick = () => {
-      document.getElementById('queryInput').value = q;
-      analyse();
-    };
+    el.onclick = () => { document.getElementById('queryInput').value = q; analyse(); };
     list.appendChild(el);
   });
 }
 
-// --- COPY TO CLIPBOARD ---
+// --- COPY ---
 async function copyAnalysis() {
   const query = document.getElementById('resultQuery').textContent;
   const analysis = document.getElementById('analysisBody').textContent;
   const text = `QUERY: ${query}\n\n${analysis}`;
-
   try {
     await navigator.clipboard.writeText(text);
-    const btn = document.getElementById('copyBtn');
-    btn.textContent = 'Copied!';
-    btn.classList.add('copied');
-    setTimeout(() => {
-      btn.textContent = 'Copy';
-      btn.classList.remove('copied');
-    }, 2000);
   } catch {
-    // Fallback for older browsers
     const ta = document.createElement('textarea');
     ta.value = text;
-    ta.style.position = 'fixed';
-    ta.style.opacity = '0';
+    ta.style.cssText = 'position:fixed;opacity:0';
     document.body.appendChild(ta);
     ta.select();
     document.execCommand('copy');
     document.body.removeChild(ta);
-    const btn = document.getElementById('copyBtn');
-    btn.textContent = 'Copied!';
-    btn.classList.add('copied');
-    setTimeout(() => {
-      btn.textContent = 'Copy';
-      btn.classList.remove('copied');
-    }, 2000);
   }
+  const btn = document.getElementById('copyBtn');
+  btn.textContent = 'Copied!';
+  btn.classList.add('copied');
+  setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
 }
 
-// --- UI HELPERS ---
+// --- UI ---
 function setQuery(el) {
   document.getElementById('queryInput').value = el.textContent.trim();
   document.getElementById('queryInput').focus();
@@ -747,11 +857,19 @@ async function getEmbedding(text, retries = 3) {
   }
 }
 
-async function searchTranscripts(embedding) {
-  const res = await fetch(`${WORKER_URL}/search`, {
+async function searchTranscripts(embedding, dateFilter) {
+  const useFiltered = dateFilter.from || dateFilter.to;
+  const endpoint = useFiltered ? '/search-filtered' : '/search';
+  const body = {
+    query_embedding: embedding,
+    match_count: 20,
+    ...(useFiltered && { date_from: dateFilter.from, date_to: dateFilter.to })
+  };
+
+  const res = await fetch(`${WORKER_URL}${endpoint}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ query_embedding: embedding, match_count: 20 })
+    body: JSON.stringify(body)
   });
   const data = await res.json();
   if (!Array.isArray(data)) throw new Error(JSON.stringify(data));
@@ -776,6 +894,7 @@ async function analyse() {
 
   const btn = document.getElementById('analyseBtn');
   const errorMsg = document.getElementById('errorMsg');
+  const dateFilter = getDateFilter();
 
   btn.disabled = true;
   errorMsg.classList.remove('visible');
@@ -786,11 +905,18 @@ async function analyse() {
     const userEmail = session?.user?.email || 'unknown';
 
     const embedding = await getEmbedding(query);
-    const chunks = await searchTranscripts(embedding);
+    const chunks = await searchTranscripts(embedding, dateFilter);
     const analysis = await getAnalysis(query, chunks, userEmail);
 
     document.getElementById('resultQuery').textContent = query;
-    document.getElementById('resultMeta').textContent = `${chunks.length} transcript excerpts analysed`;
+
+    let metaText = `${chunks.length} transcript excerpts analysed`;
+    if (dateFilter.from || dateFilter.to) {
+      const fromStr = dateFilter.from ? new Date(dateFilter.from).toLocaleDateString('en-AU', { month: 'short', year: 'numeric' }) : 'all time';
+      const toStr = dateFilter.to ? new Date(dateFilter.to).toLocaleDateString('en-AU', { month: 'short', year: 'numeric' }) : 'now';
+      metaText += ` · ${fromStr} → ${toStr}`;
+    }
+    document.getElementById('resultMeta').textContent = metaText;
     document.getElementById('analysisBody').textContent = analysis;
 
     const sourcePills = document.getElementById('sourcePills');
